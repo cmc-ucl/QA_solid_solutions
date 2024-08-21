@@ -24,7 +24,7 @@ def add_num_dopant(dataframe,num_sites,dopant_species):
 def binomial_coefficient(n, k):
     return np.factorial(n) // (np.factorial(k) * np.factorial(n - k))
 
-def build_adjacency_matrix_no_pbc(structure_pbc, max_neigh = 1, diagonal_terms = False, triu = False):
+def adjacency_matrix_no_pbc(structure_pbc, max_neigh = 1, diagonal_terms = False, triu = False):
     # structure = pymatgen Structure object
     
     from pymatgen.core.structure import Molecule
@@ -48,6 +48,39 @@ def build_adjacency_matrix_no_pbc(structure_pbc, max_neigh = 1, diagonal_terms =
         np.fill_diagonal(distance_matrix,[1]*num_sites)
     
     return distance_matrix
+
+def build_binary_vector(atomic_numbers,atom_types=None):
+    """Summary line.
+
+    Extended description of function.
+
+    Args:
+        atomic_numbers (list): List of atom number of the sites in the structure
+        atom_types (list): List of 2 elements. List element 0 = atomic_number of site == 0, 
+                           list element 1 = atomic_number of site == 1
+
+    Returns:
+        List: Binary list of atomic numbers
+
+    """
+    
+    atomic_numbers = np.array(atomic_numbers)
+    num_sites = len(atomic_numbers)
+    
+    if atom_types == None:
+        species = np.unique(atomic_numbers)
+    else:
+        species = atom_types
+    
+    binary_atomic_numbers = np.zeros(num_sites,dtype=int)
+    
+    for i,species_type in enumerate(species):
+        #print(i,species_type)
+        sites = np.where(atomic_numbers == species_type)[0]
+        #print(i,species_type,sites)
+        binary_atomic_numbers[sites] = i
+    
+    return binary_atomic_numbers
 
 def build_ml_qubo(structure,X_train,y_train,max_neigh=1):
     
